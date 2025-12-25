@@ -1,3 +1,5 @@
+from email import message
+from urllib import response
 import pytest
 import requests
 from app import create_task
@@ -7,8 +9,8 @@ tasks = []
 
 def test_create_task():
   new_task_data = {
-    "title": "Estudar Python",
-    "description": "APIs com Flask"
+    "title": "Study Python",
+    "description": "APIs with Flask"
   }
   response = requests.post(f"{BASE_URL}/tasks", json=new_task_data)
   assert response.status_code == 200
@@ -31,3 +33,24 @@ def test_get_task():
     assert response.status_code == 200
     response_json = response.json()
     assert task_id == response_json["id"]
+
+def test_update_task():
+  if tasks:
+    task_id = tasks[0]
+    payload = {
+      "title": "Study Python 2",
+      "description": "API testing with Flask",
+      "completed": True
+    }    
+    response = requests.put(f"{BASE_URL}/tasks/{task_id}", json=payload)
+    assert response.status_code == 200
+    response_json = response.json()
+    assert "message" in response_json
+    
+    # Use the GET method to view the return
+    response = requests.get(f"{BASE_URL}/tasks/{task_id}")
+    assert response.status_code == 200
+    response_json = response.json()
+    assert payload["title"] == response_json["title"]
+    assert payload["description"] == response_json["description"]
+    assert payload["completed"] == response_json["completed"]
